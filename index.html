@@ -1,0 +1,999 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SBTI - 赛博人格测试</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            min-height: 100vh;
+            color: #fff;
+            overflow-x: hidden;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .screen {
+            display: none;
+            animation: fadeIn 0.5s ease;
+        }
+
+        .screen.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .header {
+            text-align: center;
+            padding: 40px 0;
+        }
+
+        .logo {
+            font-size: 4rem;
+            font-weight: 900;
+            background: linear-gradient(135deg, #ff6b6b, #feca57, #48dbfb, #ff9ff3);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 10px;
+            letter-spacing: -2px;
+        }
+
+        .subtitle {
+            font-size: 1.2rem;
+            color: #a0a0a0;
+            margin-bottom: 30px;
+        }
+
+        .tagline {
+            font-size: 0.9rem;
+            color: #666;
+            border: 1px solid #333;
+            padding: 8px 16px;
+            border-radius: 20px;
+            display: inline-block;
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 16px 48px;
+            font-size: 1.1rem;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+        }
+
+        .progress-container {
+            margin-bottom: 30px;
+        }
+
+        .progress-text {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            font-size: 0.9rem;
+            color: #888;
+        }
+
+        .progress-bar {
+            height: 6px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 3px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea, #764ba2);
+            border-radius: 3px;
+            transition: width 0.3s ease;
+        }
+
+        .question-card {
+            background: rgba(255,255,255,0.05);
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 20px;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .question-number {
+            color: #667eea;
+            font-size: 0.9rem;
+            margin-bottom: 15px;
+            font-weight: 600;
+        }
+
+        .question-text {
+            font-size: 1.3rem;
+            line-height: 1.6;
+            margin-bottom: 25px;
+        }
+
+        .options {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .option {
+            background: rgba(255,255,255,0.05);
+            border: 2px solid rgba(255,255,255,0.1);
+            padding: 16px 20px;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 1rem;
+            text-align: left;
+        }
+
+        .option:hover {
+            background: rgba(102, 126, 234, 0.2);
+            border-color: #667eea;
+            transform: translateX(5px);
+        }
+
+        .option.selected {
+            background: rgba(102, 126, 234, 0.3);
+            border-color: #667eea;
+        }
+
+        .result-card {
+            background: rgba(255,255,255,0.05);
+            border-radius: 30px;
+            padding: 40px;
+            text-align: center;
+            border: 1px solid rgba(255,255,255,0.1);
+            margin-bottom: 30px;
+        }
+
+        .result-label {
+            font-size: 1rem;
+            color: #888;
+            margin-bottom: 10px;
+        }
+
+        .result-type {
+            font-size: 3rem;
+            font-weight: 900;
+            background: linear-gradient(135deg, #ff6b6b, #feca57, #48dbfb, #ff9ff3);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 10px;
+        }
+
+        .result-emoji {
+            font-size: 5rem;
+            margin: 20px 0;
+        }
+
+        .result-description {
+            font-size: 1.1rem;
+            line-height: 1.8;
+            color: #ccc;
+            margin-top: 20px;
+            text-align: left;
+        }
+
+        .result-tags {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 20px;
+            flex-wrap: wrap;
+        }
+
+        .tag {
+            background: rgba(102, 126, 234, 0.2);
+            color: #667eea;
+            padding: 6px 16px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+        }
+
+        .nav-buttons {
+            display: flex;
+            justify-content: space-between;
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .btn-secondary {
+            background: rgba(255,255,255,0.1);
+            color: white;
+            border: none;
+            padding: 16px 32px;
+            font-size: 1rem;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255,255,255,0.2);
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .share-section {
+            margin-top: 30px;
+            padding-top: 30px;
+            border-top: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .share-text {
+            font-size: 0.9rem;
+            color: #888;
+            margin-bottom: 15px;
+        }
+
+        .author-note {
+            background: rgba(255,255,255,0.05);
+            border-radius: 15px;
+            padding: 20px;
+            margin-top: 30px;
+            font-size: 0.85rem;
+            color: #888;
+            text-align: center;
+            line-height: 1.6;
+        }
+
+        .dimension-bar {
+            height: 8px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 4px;
+            margin: 8px 0;
+            overflow: hidden;
+        }
+
+        .dimension-fill {
+            height: 100%;
+            border-radius: 4px;
+            transition: width 0.5s ease;
+        }
+
+        .dimension-label {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.8rem;
+            color: #888;
+            margin-top: 4px;
+        }
+
+        @media (max-width: 600px) {
+            .logo {
+                font-size: 2.5rem;
+            }
+            .question-text {
+                font-size: 1.1rem;
+            }
+            .result-type {
+                font-size: 2rem;
+            }
+            .container {
+                padding: 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div id="welcome" class="screen active">
+            <div class="header">
+                <div class="logo">SBTI</div>
+                <div class="subtitle">Silly But Totally Irrational</div>
+                <div class="tagline">MBTI已经过时，SBTI来了</div>
+            </div>
+            <div style="text-align: center;">
+                <p style="color: #aaa; margin-bottom: 30px; line-height: 1.8;">
+                    31道题测出你的真实人格<br>
+                    尤物、吗喽、死者、僧人...<br>
+                    看看你是哪种抽象生物
+                </p>
+                <button class="btn" onclick="startTest()">开始测试 →</button>
+            </div>
+            <div class="author-note">
+                本测试纯属娱乐，禁止当真<br>
+                如有冒犯，那也没办法
+            </div>
+        </div>
+
+        <div id="test" class="screen">
+            <div class="progress-container">
+                <div class="progress-text">
+                    <span id="progress-label">第 1 题</span>
+                    <span id="progress-percent">3%</span>
+                </div>
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progress-fill" style="width: 3%"></div>
+                </div>
+            </div>
+            <div class="question-card">
+                <div class="question-number" id="question-number">Q1</div>
+                <div class="question-text" id="question-text"></div>
+                <div class="options" id="options"></div>
+            </div>
+            <div class="nav-buttons">
+                <button class="btn-secondary" id="prev-btn" onclick="prevQuestion()" disabled>← 上一题</button>
+                <button class="btn" id="next-btn" onclick="nextQuestion()" disabled>下一题 →</button>
+            </div>
+        </div>
+
+        <div id="result" class="screen">
+            <div class="header">
+                <div class="result-label">你的赛博人格是</div>
+                <div class="result-type" id="result-type"></div>
+            </div>
+            <div class="result-card">
+                <div class="result-emoji" id="result-emoji"></div>
+                <div class="result-tags" id="result-tags"></div>
+                <div class="result-description" id="result-description"></div>
+            </div>
+            <div style="text-align: center;">
+                <button class="btn" onclick="shareResult()">📤 分享结果</button>
+                <button class="btn-secondary" onclick="restartTest()" style="margin-left: 15px;">🔄 重新测试</button>
+            </div>
+            <div class="author-note">
+                声明：本测试结果纯属娱乐，不代表任何专业心理评估<br>
+                多次测试结果可能不同，这是正常的（其实就是半随机的）
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const questions = [
+            {
+                text: "半夜三点，你突然从梦中惊醒，第一个反应是？",
+                options: [
+                    { text: "完蛋了，明天还有重要的事", score: { stress: 10, anxiety: 8 } },
+                    { text: "检查一下手机有没有人找", score: { social: 8, phone: 10 } },
+                    { text: "继续睡，管他呢", score: { chill: 10, ignore: 8 } },
+                    { text: "思考人生的意义", score: { philosopher: 10, exist: 8 } }
+                ]
+            },
+            {
+                text: "对象超过5小时没回消息，说是在「串稀」，你会？",
+                options: [
+                    { text: "疯狂发消息追问", score: { anxious: 10, clingy: 8 } },
+                    { text: "表面相信，内心已写好小作文", score: { drama: 10, trust_issues: 8 } },
+                    { text: "无所谓，反正我也很忙", score: { independent: 10, cold: 8 } },
+                    { text: "给他推荐止泻药", score: { caring: 8, practical: 10 } }
+                ]
+            },
+            {
+                text: "在KTV里，朋友突然递给你话筒让你唱，你会？",
+                options: [
+                    { text: "大方开唱，成为全场MVP", score: { performer: 10, confident: 8 } },
+                    { text: "假装打电话逃跑", score: { escape: 10, shy: 8 } },
+                    { text: "低头假装看手机", score: { avoid: 10, social_anxiety: 8 } },
+                    { text: "假装上厕所消失", score: { escape: 10, practical: 8 } }
+                ]
+            },
+            {
+                text: "你的朋友给你安利了一部电影，你会？",
+                options: [
+                    { text: "立刻去看并写300字观后感发给他", score: { enthusiastic: 10, intense: 8 } },
+                    { text: "说「好的」然后永远不会看", score: { fake: 10, polite: 8 } },
+                    { text: "看完觉得不好看，委婉告诉他", score: { honest: 8, diplomatic: 10 } },
+                    { text: "根本不会打开，决定单身一辈子", score: { commitment_issues: 10, lazy: 8 } }
+                ]
+            },
+            {
+                text: "你月薪多少？",
+                options: [
+                    { text: "不好意思，3000", score: { poor: 10, honest: 8 } },
+                    { text: "够花（其实月月光）", score: { lie: 10, pride: 8 } },
+                    { text: "不方便透露，反正是你得不到的数字", score: { mysterious: 8, humble_brag: 10 } },
+                    { text: "问这个干嘛，你要请我吃饭吗", score: { deflect: 10, social: 8 } }
+                ]
+            },
+            {
+                text: "周末你一般？",
+                options: [
+                    { text: "加班（工作使我快乐/穷）", score: { workaholic: 10, poor: 8 } },
+                    { text: "在家躺着恢复能量", score: { introvert: 10, chill: 8 } },
+                    { text: "到处社交、拓展人脉", score: { extrovert: 10, social: 8 } },
+                    { text: "学习新技能（卷王本王）", score: { ambitious: 10, self_improve: 8 } }
+                ]
+            },
+            {
+                text: "你点外卖的习惯是？",
+                options: [
+                    { text: "每次都要想半小时，最后吃上次那家", score: { indecisive: 10, routine: 8 } },
+                    { text: "直接去店里吃（不想等）", score: { impatient: 10, practical: 8 } },
+                    { text: "凑满减+红包+discount，算完发现省了3块", score: { cheap: 10, calculate: 8 } },
+                    { text: "我做饭（健康又省钱）", score: { healthy: 8, domestic: 10 } }
+                ]
+            },
+            {
+                text: "当你看到「99+」的消息通知时？",
+                options: [
+                    { text: "兴奋地点开，开始回复", score: { social: 10, eager: 8 } },
+                    { text: "焦虑地想是谁，到底什么事", score: { anxiety: 10, worry: 8 } },
+                    { text: "已读不回，等有空再说", score: { busy: 10, laid_back: 8 } },
+                    { text: "直接划走，假装没看到", score: { ignore: 10, avoid: 8 } }
+                ]
+            },
+            {
+                text: "你对自己的评价是？",
+                options: [
+                    { text: "普通人一个", score: { humble: 10, normal: 8 } },
+                    { text: "潜力无限，只是还没爆发", score: { dreamer: 10, confident: 8 } },
+                    { text: "智商超群但情商欠费", score: { smart: 8, awkward: 10 } },
+                    { text: "一个善良的普通人", score: { kind: 10, simple: 8 } }
+                ]
+            },
+            {
+                text: "你洗澡的时候一般在想什么？",
+                options: [
+                    { text: "今天发生的事/明天要做的事", score: { overthink: 10, anxious: 8 } },
+                    { text: "构思一部旷世巨作", score: { creative: 10, daydream: 8 } },
+                    { text: "什么都不想，享受当下", score: { zen: 10, present: 8 } },
+                    { text: "寻思怎么让水费省一点", score: { cheap: 10, practical: 8 } }
+                ]
+            },
+            {
+                text: "如果你的宠物会说话，你希望它说什么？",
+                options: [
+                    { text: "「主人你最棒了，我爱你」", score: { narcissistic: 8, vain: 10 } },
+                    { text: "「那个零食再来一罐」", score: { realistic: 10, practical: 8 } },
+                    { text: "「你知道我有多辛苦吗」", score: { empathetic: 8, dramatic: 10 } },
+                    { text: "「隔壁的猫说它喜欢你」", score: { gossip: 10, social: 8 } }
+                ]
+            },
+            {
+                text: "你在朋友圈一般发什么？",
+                options: [
+                    { text: "从不发，朋友圈对我来说是一片荒原", score: { private: 10, low_social: 8 } },
+                    { text: "精致生活照，展示高品质的自己", score: { vain: 10, showoff: 8 } },
+                    { text: "表情包和 memes，和朋友互相斗图", score: { meme: 10, fun: 8 } },
+                    { text: "仅朋友圈可见的吐槽（分组狂魔）", score: { dramatic: 10, calculated: 8 } }
+                ]
+            },
+            {
+                text: "你的闹钟设置是？",
+                options: [
+                    { text: "7:00，准时起床，拥抱太阳", score: { disciplined: 10, morning: 8 } },
+                    { text: "8:30，踩点上班（偶尔翻车）", score: { last_minute: 10, laid_back: 8 } },
+                    { text: "没有闹钟，靠生物钟（和室友叫", score: { chaotic: 10, carefree: 8 } },
+                    { text: "设了10个闹钟，但依然会迟到", score: { hopeless: 10, chaos: 8 } }
+                ]
+            },
+            {
+                text: "有人说你的坏话，你会？",
+                options: [
+                    { text: "当面质问，不服就干", score: { aggressive: 10, direct: 8 } },
+                    { text: "默默记下，以后远离此人", score: { petty: 10, grudge: 8 } },
+                    { text: "无所谓，走自己的路", score: { confident: 8, unbothered: 10 } },
+                    { text: "假装不知道，背后也不说", score: { diplomatic: 10, passive: 8 } }
+                ]
+            },
+            {
+                text: "你做饭的水平是？",
+                options: [
+                    { text: "能把生的做成熟的", score: { survival: 10, basic: 8 } },
+                    { text: "色香味俱全，厨艺了得", score: { talented: 10, domestic: 8 } },
+                    { text: "厨艺=烧开水和泡面", score: { helpless: 10, lazy: 8 } },
+                    { text: "我做饭？都是外卖在伺候我", score: { spoiled: 10, rich: 8 } }
+                ]
+            },
+            {
+                text: "你和朋友吵架了，一般谁先道歉？",
+                options: [
+                    { text: "我， Peace & Love 爱好者", score: { peace: 10, conflict_avoid: 8 } },
+                    { text: "凭什么是我？等对方先来", score: { stubborn: 10, pride: 8 } },
+                    { text: "看情况，但绝不会认输", score: { calculating: 10, strategic: 8 } },
+                    { text: "吵架？删好友更省事", score: { dramatic: 10, extreme: 8 } }
+                ]
+            },
+            {
+                text: "你的微信签名是？",
+                options: [
+                    { text: "不瘦20斤不换头像", score: { unrealistic: 10, dramatic: 8 } },
+                    { text: "「已黑化勿扰」", score: { edgy: 10, cringey: 8 } },
+                    { text: "一个简单的Emoji", score: { mysterious: 10, simple: 8 } },
+                    { text: "每天都换，和心情一样", score: { chaotic: 10, moody: 8 } }
+                ]
+            },
+            {
+                text: "你最近一次哭是因为什么？",
+                options: [
+                    { text: "工作/学业压力太大", score: { stressed: 10, tired: 8 } },
+                    { text: "被电影/小说虐到了", score: { sensitive: 10, romantic: 8 } },
+                    { text: "我？不哭的，眼泪是奢侈品", score: { hardened: 10, tough: 8 } },
+                    { text: "感动到哭，我是感性的人", score: { emotional: 10, kind: 8 } }
+                ]
+            },
+            {
+                text: "你觉得人生的意义是？",
+                options: [
+                    { text: "搞钱，赚钱是唯一的真理", score: { materialistic: 10, ambitious: 8 } },
+                    { text: "及时行乐，今朝有酒今朝醉", score: { hedonist: 10, chill: 8 } },
+                    { text: "没有意义，但又要活着", score: { nihilist: 10, depressed: 8 } },
+                    { text: "找到热爱的事并为之奋斗", score: { idealist: 10, hopeful: 8 } }
+                ]
+            },
+            {
+                text: "你买奶茶会怎么点？",
+                options: [
+                    { text: "全糖全料加奶盖，不甜不要钱", score: { extra: 10, sweet_tooth: 8 } },
+                    { text: "无糖，因为我在减肥（真的吗）", score: { fake_healthy: 10, in_denial: 8 } },
+                    { text: "三分糖，精准控制", score: { calculate: 10, controlled: 8 } },
+                    { text: "我喝白开水，健康省钱", score: { cheap: 10, boring: 8 } }
+                ]
+            },
+            {
+                text: "你的手机相册里最多的是什么？",
+                options: [
+                    { text: "自拍（每天都要欣赏自己）", score: { narcissistic: 10, vain: 8 } },
+                    { text: "表情包和截图，社交货币", score: { meme: 10, collector: 8 } },
+                    { text: "风景/食物，证明我活过", score: { documentary: 10, simple: 8 } },
+                    { text: "截图中充满了工作群消息", score: { workaholic: 10, tragic: 8 } }
+                ]
+            },
+            {
+                text: "你和家人打电话的频率是？",
+                options: [
+                    { text: "每天报平安，像完成任务", score: { dutiful: 10, obligated: 8 } },
+                    { text: "想打就打，不想打就消失", score: { independent: 10, casual: 8 } },
+                    { text: "接到来电就焦虑，假装没看到", score: { avoidant: 10, anxiety: 8 } },
+                    { text: "主动打？那不可能，等他们打来", score: { pride: 10, passive: 8 } }
+                ]
+            },
+            {
+                text: "你参加聚会的原因是？",
+                options: [
+                    { text: "认识新朋友，拓展社交圈", score: { social: 10, networking: 8 } },
+                    { text: "被迫参加，不去显得不合群", score: { peer_pressure: 10, conformity: 8 } },
+                    { text: "去吃东西/喝酒，免费的最好", score: { freeloader: 10, practical: 8 } },
+                    { text: "根本不想去，在家打游戏不香吗", score: { introvert: 10, anti_social: 8 } }
+                ]
+            },
+            {
+                text: "你平均每天刷手机几个小时？",
+                options: [
+                    { text: "2-3小时，正常使用", score: { normal: 10, balanced: 8 } },
+                    { text: "6小时起，短视频太上头了", score: { addicted: 10, doom_scroll: 8 } },
+                    { text: "工作需要，几乎时刻在线", score: { workaholic: 10, busy: 8 } },
+                    { text: "不刷，我用的是老年机", score: { retro: 10, alternative: 8 } }
+                ]
+            },
+            {
+                text: "如果可以一键让讨厌的人消失，你会？",
+                options: [
+                    { text: "这违法吧？但是……我再想想", score: { tempted: 10, moral_conflict: 8 } },
+                    { text: "不好意思，我是个善良的人", score: { kind: 10, good: 8 } },
+                    { text: "已经按了，谢谢关心", score: { dark: 10, humor: 8 } },
+                    { text: "讨厌的人多了去了，忙不过来", score: { cynical: 10, exhausted: 8 } }
+                ]
+            },
+            {
+                text: "你睡觉的习惯是？",
+                options: [
+                    { text: "必须穿睡衣，讲究", score: { picky: 10, routine: 8 } },
+                    { text: "在床上滚到哪算哪", score: { flexible: 10, carefree: 8 } },
+                    { text: "一定要有耳眠眼罩+香薰机", score: { diva: 10, high_maintenance: 8 } },
+                    { text: "通勤路上补觉，不挑地方", score: { exhausted: 10, adaptable: 8 } }
+                ]
+            },
+            {
+                text: "你买东西更看重什么？",
+                options: [
+                    { text: "品牌，要买就买好的", score: { luxury: 10, quality: 8 } },
+                    { text: "性价比，实用最重要", score: { practical: 10, sensible: 8 } },
+                    { text: "颜值即正义，好看就行", score: { aesthetic: 10, shallow: 8 } },
+                    { text: "有没有折扣，优惠券用起来", score: { deal_hunter: 10, cheap: 8 } }
+                ]
+            },
+            {
+                text: "你对「内卷」的看法是？",
+                options: [
+                    { text: "我卷不过你们，我先躺了", score: { defeatist: 10, resigned: 8 } },
+                    { text: "卷就对了，不卷就会被淘汰", score: { competitive: 10, anxious: 8 } },
+                    { text: "无所谓，我只在乎自己的节奏", score: { authentic: 10, unbothered: 8 } },
+                    { text: "卷什么卷，不如一起摆烂", score: { rebel: 10, anarchist: 8 } }
+                ]
+            },
+            {
+                text: "朋友向你吐槽他的烦恼，你会？",
+                options: [
+                    { text: "认真倾听，给出建议", score: { supportive: 10, caring: 8 } },
+                    { text: "听一会儿，然后说「我也是」", score: { self_centric: 10, deflect: 8 } },
+                    { text: "表面安慰，内心「关我什么事」", score: { fake: 10, diplomatic: 8 } },
+                    { text: "直接打断，开始讲自己的问题", score: { oblivious: 10, self_absorbed: 8 } }
+                ]
+            },
+            {
+                text: "你现在的精神状态是？",
+                options: [
+                    { text: "很稳定，每天都元气满满", score: { stable: 10, positive: 8 } },
+                    { text: "时而发疯时而正常，间歇性的", score: { chaotic: 10, moody: 8 } },
+                    { text: "表面平静，内心已疯", score: { hiding: 10, suppressed: 8 } },
+                    { text: "疯，已经疯了，完全疯了", score: { unhinged: 10, accepting: 8 } }
+                ]
+            },
+            {
+                text: "最后一个问题：你觉得你能过关吗？",
+                options: [
+                    { text: "必须能，我是最特别的", score: { confident: 10, narcissistic: 8 } },
+                    { text: "不知道，交给命运吧", score: { fatalistic: 10, chill: 8 } },
+                    { text: "过不过关无所谓，反正不准", score: { cynical: 10, detached: 8 } },
+                    { text: "什么问题？这题选的C", score: { confused: 10, lost: 8 } }
+                ]
+            }
+        ];
+
+        const personalityTypes = [
+            {
+                name: "尤物",
+                emoji: "🔥",
+                tags: ["万人迷", "社交达人", "魅力四射"],
+                description: "你天生自带光环，走到哪里都是焦点。朋友圈的点赞收割机，聚会的气氛组组长。但要小心，别因为太受欢迎而迷失自己——虽然你不会，你只会更加自（快）信（乐）。"
+            },
+            {
+                name: "吗喽",
+                emoji: "🐒",
+                tags: ["打工人", "自嘲王", "精神支柱"],
+                description: "当代打工人的真实写照。每天早上对着镜子给自己打气：「加油，工作使我快乐（真的吗）」。工资发下来还完花呗就差不多光了，但依然乐观地活着。握不住的命运，但至少还有工位。"
+            },
+            {
+                name: "死者",
+                emoji: "💀",
+                tags: ["已黑化", "看透一切", "行尸走肉"],
+                description: "恭喜你达到了「无欲无求」的境界。没有什么能让你开心，也没有什么能让你难过。你对生活说：「随便吧」。KTV里你是最安静的角落，朋友圈你是点赞之交的路人甲。"
+            },
+            {
+                name: "僧人",
+                emoji: "🧘",
+                tags: ["看破红尘", "佛系", "结界守护者"],
+                description: "你早已看透世间的纷纷扰扰。与其去KTV唱歌应酬，你更愿意在家打坐冥想，思考人生的终极问题。你的个人空间就是你的结界，是你的须弥山，是你的绝对领域。踏入者，会感受到一种来自灵魂深处的窒息感。"
+            },
+            {
+                name: "拿捏者",
+                emoji: "🤏",
+                tags: ["高情商", "掌控全局", "老谋深算"],
+                description: "你总是能在各种场合游刃有余，天生的社交高手。不显山不露水，但关键时刻总能掌控局面。朋友遇到情感问题第一个找你，你嘴上说着「建议分手」，心里其实早就想好了三个解决方案。"
+            },
+            {
+                name: "无所谓人",
+                emoji: "😐",
+                tags: ["都行", "可以", "没关系"],
+                description: "你的字典里没有「执着」两个字。去哪吃？都行。看什么电影？随便。吃什么？无所谓。你是朋友圈里的和平使者，从不与人争论，但有时候也会想：「我的人生为什么这么平淡？」"
+            },
+            {
+                name: "怨种",
+                emoji: "😤",
+                tags: ["大冤种", "背锅侠", "老实人"],
+                description: "你是那个永远在付出却得不到回报的人。帮朋友搬家、借同事钱、替人加班……你的善良总是被利用。但别担心，你终有一天会觉醒，变成「觉醒者」——然后继续被坑。"
+            },
+            {
+                name: "狗屎人",
+                emoji: "💩",
+                tags: ["踩坑王", "倒霉蛋", "水逆体质"],
+                description: "你的人生仿佛被诅咒，出门就下雨、约饭就加班、打车永远要等十分钟。你总是那个被命运针对的人，但没关系，至少你还有幽默感——毕竟除了幽默感你也没什么可失去的了。"
+            },
+            {
+                name: "ATM-er",
+                emoji: "🏧",
+                tags: ["提款机", "散财童子", "人傻钱多"],
+                description: "你的钱包仿佛有漏洞，赚多少花多少，甚至赚的不够花。朋友眼中的「大方」只是你最后的倔强，月底吃土才是生活的真相。但没关系，你相信钱是赚来的不是省出来的——虽然你也没赚到。"
+            },
+            {
+                name: "伪人",
+                emoji: "🎭",
+                tags: ["表演型", "双面人", "社交面具"],
+                description: "你有两个自己：一个给外人看，一个给自己看。在老板面前勤勤恳恳，在朋友面前吐槽满满。你是朋友圈里的正能量大使，私下里却是个彻头彻尾的负能量载体。你的演技堪比影帝，只是没有人为你颁奖。"
+            },
+            {
+                name: "多情者",
+                emoji: "💕",
+                tags: ["恋爱脑", "深情", "容易上头"],
+                description: "你是一个相信爱情的人（至少每次分手后都这么告诉自己）。上一秒还在说「男人/女人都是大猪蹄子」，下一秒就「我好像又恋爱了」。你对每段感情都全身心投入，即使结局是be。"
+            },
+            {
+                name: "酒鬼",
+                emoji: "🍺",
+                tags: ["深夜买醉", "借酒消愁", "酒品好"],
+                description: "你的人生哲学是「何以解忧？唯有杜康」。开心的时候要庆祝，不开心的时候要消愁。酒是你的精神支柱，也是你深夜发朋友圈的灵感来源。你总说「最后一杯」，但从来都不是。"
+            },
+            {
+                name: "卷王",
+                emoji: "📈",
+                tags: ["自律", "鸡血", "永动机"],
+                description: "你不是在加班，就是在去加班的路上。你的日程表比高考倒计时还满，你的朋友圈永远在晒学习。你的人生信条是「今天不努力，明天就淘汰」。但卷着卷着，你偶尔也会想：「我这么努力是为了什么？」然后继续卷。"
+            },
+            {
+                name: "穷忙族",
+                emoji: "🐌",
+                tags: ["瞎忙", "低效", "感动自己"],
+                description: "你每天都很忙，忙到没时间吃饭、没时间休息、没时间思考自己在忙什么。月底一结算，工资还没花呗多。你是那种「看起来很忙但其实什么都没做」的人，但没关系，至少你感动了自己。"
+            },
+            {
+                name: "孤独患者",
+                emoji: "🌙",
+                tags: ["社恐", "独处", "内心戏丰富"],
+                description: "你享受独处，但偶尔也会在深夜感到一丝孤独。你不喜欢社交，但内心其实渴望被理解。你是那种「在线但不回消息」的人，不是因为高冷，只是不知道怎么回复。你的想象力比朋友圈丰富一百倍。"
+            },
+            {
+                name: "乐天派",
+                emoji: "☀️",
+                tags: ["傻乐", "单纯", "容易满足"],
+                description: "你是那种「早上被老板骂，下午就能因为吃到好吃的而开心」的人。没有什么烦恼是一顿饭解决不了的，如果有，就两顿。你对生活的期望值低到尘埃里，所以永远都能活得快乐。"
+            },
+            {
+                name: "社牛症",
+                emoji: "🎤",
+                tags: ["社牛", "自来熟", "控场王"],
+                description: "你的字典里没有「尴尬」两个字。在地铁上能和陌生人聊家常，在KTV里一个人能唱全场。你是那种「有你在就不会冷场」的人，也是那种让人怀疑「你累不累啊」的人。"
+            },
+            {
+                name: "人间清醒",
+                emoji: "🧊",
+                tags: ["理性", "通透", "冷眼看世界"],
+                description: "你早已看透了这个社会的运作规则，不抱幻想，不信鸡汤。你是朋友圈里的「反消费主义」战士，也是「人间真实」的代言人。你很少发朋友圈，因为觉得「没什么好发的」——这就是你，冷静而理性。"
+            },
+            {
+                name: "讨好型",
+                emoji: "🙇",
+                tags: ["老好人", "不懂拒绝", "卑微"],
+                description: "你的口头禅是「好的」「没问题」「我来吧」。你从不懂得拒绝别人，即使内心已经翻江倒海。你是那种「帮了别人十次，一次没帮就被记恨」的人。学会说不，从今天开始——算了，你明天再说吧。"
+            },
+            {
+                name: "吃货本货",
+                emoji: "🍜",
+                tags: ["干饭人", "美食家", "永远在减肥"],
+                description: "你的人生格言是「吃饱了才有力气减肥」。你对美食有无限的热爱，看到好吃的就走不动路。你的相册里有一半是食物照片，你的体重秤是你最不愿看到的东西。你总说「这是最后一口」，但从来都不是。"
+            },
+            {
+                name: "追星族",
+                emoji: "⭐",
+                tags: ["粉丝", "打投", "为爱发电"],
+                description: "你的生活有一半是被偶像填满的。你买周边、控评、打投、做数据，一个不落。你是那种「可以自己吃泡面，但必须给偶像买专辑」的人。你的爱豆是你精神支柱，也是你做梦的素材来源。"
+            },
+            {
+                name: "创作者",
+                emoji: "✍️",
+                tags: ["灵感", "表达", "思考者"],
+                description: "你是一个内心世界丰富的人，喜欢用各种方式表达自己。写东西、画画、拍视频……你总是在记录生活，也总是在思考人生。你的脑子里装满了奇思妙想，只是大部分还没来得及实现。"
+            },
+            {
+                name: "废柴",
+                emoji: "🛋️",
+                tags: ["躺平", "摆烂", "反内卷"],
+                description: "你是「躺平学」的忠实拥护者，内卷？那是什么，能吃吗？你的理想生活是「钱多事少离家近，睡觉睡到自然醒」。你没有什么远大抱负，只想安安静静地当一条咸鱼。你觉得这样挺好的，真的。"
+            },
+            {
+                name: "工作狂",
+                emoji: "💼",
+                tags: ["事业心", "忽略生活", "成就感"],
+                description: "你的生活就是工作，工作就是生活。加班是你的常态，休假是你的噩梦。你从工作中获得成就感，但也因此错过了很多生活的美好。你的朋友越来越少，你的黑眼圈越来越深——但你不在乎，因为你在搞事业。"
+            },
+            {
+                name: "小透明",
+                emoji: "👻",
+                tags: ["存在感弱", "默默无闻", "容易被遗忘"],
+                description: "你是那种「在群里发消息永远没人回」的人，也是那种「聚会合照里被裁掉」的人。你存在感低到尘埃里，但这也意味着你没有敌人。你是社会的基石，是沉默的大多数，是安静但不可或缺的存在。"
+            },
+            {
+                name: "暴躁老哥",
+                emoji: "🔥",
+                tags: ["易怒", "直率", "不好惹"],
+                description: "你的脾气比你的酒量还差，一点就着。你是那种「惹我我就骂」的人，从不藏着掖着。你觉得自己很直爽，别人觉得你很冲。你的朋友都是能承受你脾气的人，毕竟真爱了。"
+            },
+            {
+                name: "逆袭者",
+                emoji: "🌅",
+                tags: ["潜力股", "厚积薄发", "未来可期"],
+                description: "你现在可能还在蛰伏期，但你的内心燃烧着不甘平庸的火焰。你相信总有一天会证明自己，你会成为那个「当初你看不起我，现在你高攀不起」的人。你的字典里没有「认输」两个字。"
+            }
+        ];
+
+        let currentQuestion = 0;
+        let answers = [];
+
+        function startTest() {
+            document.getElementById('welcome').classList.remove('active');
+            document.getElementById('test').classList.add('active');
+            showQuestion();
+        }
+
+        function showQuestion() {
+            const q = questions[currentQuestion];
+            document.getElementById('question-number').textContent = `Q${currentQuestion + 1}`;
+            document.getElementById('question-text').textContent = q.text;
+            document.getElementById('progress-label').textContent = `第 ${currentQuestion + 1} 题`;
+            document.getElementById('progress-percent').textContent = `${Math.round((currentQuestion + 1) / questions.length * 100)}%`;
+            document.getElementById('progress-fill').style.width = `${(currentQuestion + 1) / questions.length * 100}%`;
+
+            const optionsContainer = document.getElementById('options');
+            optionsContainer.innerHTML = '';
+
+            q.options.forEach((opt, index) => {
+                const btn = document.createElement('div');
+                btn.className = 'option' + (answers[currentQuestion] === index ? ' selected' : '');
+                btn.textContent = opt.text;
+                btn.onclick = () => selectOption(index);
+                optionsContainer.appendChild(btn);
+            });
+
+            document.getElementById('prev-btn').disabled = currentQuestion === 0;
+            document.getElementById('next-btn').disabled = answers[currentQuestion] === undefined;
+
+            if (currentQuestion === questions.length - 1) {
+                document.getElementById('next-btn').textContent = '查看结果 🎉';
+            } else {
+                document.getElementById('next-btn').textContent = '下一题 →';
+            }
+        }
+
+        function selectOption(index) {
+            answers[currentQuestion] = index;
+            showQuestion();
+        }
+
+        function nextQuestion() {
+            if (currentQuestion < questions.length - 1) {
+                currentQuestion++;
+                showQuestion();
+            } else {
+                showResult();
+            }
+        }
+
+        function prevQuestion() {
+            if (currentQuestion > 0) {
+                currentQuestion--;
+                showQuestion();
+            }
+        }
+
+        function calculateResult() {
+            let scores = {
+                social: 0, anxious: 0, chill: 0, philosopher: 0,
+                drama: 0, escape: 0, indecisive: 0, vain: 0,
+                workaholic: 0, introverted: 0, creative: 0, cheap: 0,
+                overthink: 0, zen: 0, gossip: 0, private: 0,
+                meme: 0, chaotic: 0, aggressive: 0, supportive: 0,
+                confident: 0, cynical: 0, emotional: 0, practical: 0
+            };
+
+            answers.forEach((answerIndex, questionIndex) => {
+                const score = questions[questionIndex].options[answerIndex].score;
+                Object.keys(score).forEach(key => {
+                    if (scores.hasOwnProperty(key)) {
+                        scores[key] += score[key];
+                    }
+                });
+            });
+
+            const totalScore = Object.values(scores).reduce((a, b) => a + b, 0);
+            const normalizedScores = {};
+            Object.keys(scores).forEach(key => {
+                normalizedScores[key] = (scores[key] / totalScore) * 100;
+            });
+
+            let maxType = 0;
+            const typeScores = [
+                normalizedScores.social + normalizedScores.confident,
+                normalizedScores.workaholic + normalizedScores.introverted,
+                normalizedScores.anxious + normalizedScores.overthink,
+                normalizedScores.zen + normalizedScores.philosopher,
+                normalizedScores.drama + normalizedScores.confident,
+                normalizedScores.chill + normalizedScores.cynical,
+                normalizedScores.supportive + normalizedScores.emotional,
+                normalizedScores.cheap + normalizedScores.chaotic,
+                normalizedScores.vain + normalizedScores.practical,
+                normalizedScores.drama + normalizedScores.escape,
+                normalizedScores.emotional + normalizedScores.social,
+                normalizedScores.chaotic + normalizedScores.zen,
+                normalizedScores.workaholic + normalizedScores.confident,
+                normalizedScores.chaotic + normalizedScores.anxious,
+                normalizedScores.introverted + normalizedScores.creative,
+                normalizedScores.chill + normalizedScores.emotional,
+                normalizedScores.social + normalizedScores.confident,
+                normalizedScores.cynical + normalizedScores.zen,
+                normalizedScores.supportive + normalizedScores.anxious,
+                normalizedScores.vain + normalizedScores.chaotic,
+                normalizedScores.social + normalizedScores.meme,
+                normalizedScores.creative + normalizedScores.introverted,
+                normalizedScores.chill + normalizedScores.escape,
+                normalizedScores.workaholic + normalizedScores.anxious,
+                normalizedScores.private + normalizedScores.introverted,
+                normalizedScores.aggressive + normalizedScores.anxious,
+                normalizedScores.confident + normalizedScores.zen
+            ];
+
+            for (let i = 1; i < typeScores.length; i++) {
+                if (typeScores[i] > typeScores[maxType]) {
+                    maxType = i;
+                }
+            }
+
+            const randomFactor = Math.random();
+            if (randomFactor > 0.7) {
+                maxType = Math.floor(Math.random() * personalityTypes.length);
+            }
+
+            return personalityTypes[maxType];
+        }
+
+        function showResult() {
+            document.getElementById('test').classList.remove('active');
+            document.getElementById('result').classList.add('active');
+
+            const result = calculateResult();
+
+            document.getElementById('result-type').textContent = result.name;
+            document.getElementById('result-emoji').textContent = result.emoji;
+            document.getElementById('result-description').textContent = result.description;
+
+            const tagsContainer = document.getElementById('result-tags');
+            tagsContainer.innerHTML = '';
+            result.tags.forEach(tag => {
+                const span = document.createElement('span');
+                span.className = 'tag';
+                span.textContent = tag;
+                tagsContainer.appendChild(span);
+            });
+        }
+
+        function shareResult() {
+            const resultType = document.getElementById('result-type').textContent;
+            const resultEmoji = document.getElementById('result-emoji').textContent;
+            const shareText = `我的SBTI测试结果是：${resultEmoji} ${resultType}！你也来测测吧 → https://sbti.unun.dev`;
+
+            if (navigator.clipboard) {
+                navigator.clipboard.writeText(shareText).then(() => {
+                    alert('结果已复制到剪贴板，快去分享吧！');
+                });
+            } else {
+                alert('分享功能复制失败，请手动复制结果分享~');
+            }
+        }
+
+        function restartTest() {
+            currentQuestion = 0;
+            answers = [];
+            document.getElementById('result').classList.remove('active');
+            document.getElementById('welcome').classList.add('active');
+        }
+    </script>
+</body>
+</html>
