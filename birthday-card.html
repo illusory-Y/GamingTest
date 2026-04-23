@@ -1,281 +1,500 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no"/>
-  <title>生日快乐 ❤️</title>
-  <style>
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>生日快乐 ❤️</title>
+<style>
+* {
+margin: 0;
+padding: 0;
+box-sizing: border-box;
+}
 
-    body {
-      width: 100vw;
-      height: 100vh;
-      overflow: hidden;
-      background: linear-gradient(135deg, #ffd6e0, #fef9ff);
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-      position: relative;
-    }
+body {
+width: 100vw;
+height: 100vh;
+overflow: hidden;
+background: linear-gradient(135deg, #ffd6e0, #ffd6e0);
+font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+position: relative;
+}
 
-    /* 浮动小装饰 */
-    .float-item {
-      position: absolute;
-      font-size: 28px;
-      animation: float 6s ease-in-out infinite;
-      z-index: 1;
-    }
+.float-item {
+position: absolute;
+font-size: 28px;
+animation: float 6s ease-in-out infinite;
+z-index: 1;
+}
 
-    @keyframes float {
-      0% { transform: translateY(0) rotate(0deg); opacity: 0.7; }
-      50% { transform: translateY(-20px) rotate(10deg); opacity: 1; }
-      100% { transform: translateY(0) rotate(0deg); opacity: 0.7; }
-    }
+@keyframes float {
+0% { transform: translateY(0) rotate(0deg); opacity: 0.7; }
+50% { transform: translateY(-20px) rotate(10deg); opacity: 1; }
+100% { transform: translateY(0) rotate(0deg); opacity: 0.7; }
+}
 
-    /* 信封容器 */
-    .envelope-wrapper {
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      width: 80vw;
-      max-width: 760px;
-      aspect-ratio: 1 / 0.7;
-      z-index: 10;
-    }
+/* 彩虹马动画 */
+.rainbow-pony {
+  position: fixed;
+  top: -100px;
+  left: -200px;
+  width: 120px;
+  height: 120px;
+  font-size: 100px;
+  z-index: 99999;
+  opacity: 0;
+  animation: ponyFly 3.5s ease-in-out forwards;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
 
-    .envelope {
-      position: relative;
-      width: 100%;
-      height: 100%;
-      background: #ffccd5;
-      border-radius: 16px;
-      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
-      overflow: hidden;
-      transition: all 0.6s ease;
-    }
+@keyframes ponyFly {
+  0% {
+    opacity: 0;
+    transform: translate(-200px, -100px) scale(0.5);
+  }
+  25% {
+    opacity: 1;
+    transform: translate(30vw, 20vh) scale(1);
+  }
+  50% {
+    transform: translate(50vw, 45vh) scale(1);
+  }
+  75% {
+    opacity: 1;
+    transform: translate(70vw, 20vh) scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: translate(100vw, -100px) scale(0.5);
+  }
+}
 
-    /* 信封封口 */
-    .envelope-flap {
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 50%;
-      background: #ff8fab;
-      clip-path: polygon(0 0, 100% 0, 50% 100%);
-      transform-origin: top center;
-      transition: transform 0.8s cubic-bezier(0.68, -0.55, 0.265, 1.55);
-      z-index: 11;
-    }
+/* 信封 - 带出现动画 */
+.envelope-wrapper {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) scale(0);
+  width: 80vw;
+  max-width: 360px;
+  aspect-ratio: 1 / 0.7;
+  z-index: 10;
+  display: none;
+  animation: envelopePop 1s cubic-bezier(0.68, -0.55, 0.27, 1.55) forwards;
+}
 
-    /* 锁扣 */
-    .lock {
-      position: absolute;
-      top: 45%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      width: 50px;
-      height: 50px;
-      background: #ff5e8d;
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: white;
-      font-size: 22px;
-      box-shadow: 0 4px 10px rgba(255, 94, 141, 0.4);
-      cursor: pointer;
-      z-index: 12;
-      transition: transform 0.3s ease;
-    }
-    .lock:hover {
-      transform: translate(-50%, -50%) scale(1.1);
-    }
+@keyframes envelopePop {
+  0% { transform: translate(-50%, -50%) scale(0); opacity: 0; }
+  100% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+}
 
-    /* 信纸 */
-    .letter {
-      position: absolute;
-      bottom: 0;
-      left: 5%;
-      width: 90%;
-      height: 85%;
-      background: #fff;
-      border-radius: 12px;
-      padding: 30px 20px;
-      text-align: center;
-      color: #333;
-      transform: translateY(100%);
-      opacity: 0;
-      transition: transform 1s ease, opacity 0.6s ease;
-      z-index: 8;
-      box-shadow: 0 -4px 15px rgba(0,0,0,0.1);
-      overflow-y: auto;
-      line-height: 1.8;
-    }
+.envelope {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  background: #ffccd5;
+  border-radius: 16px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+  overflow: hidden;
+}
 
-    .letter h2 {
-      color: #ff5e8d;
-      margin-bottom: 16px;
-      font-size: 22px;
-    }
+.envelope-flap {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 50%;
+  background: #ff8fab;
+  clip-path: polygon(0 0, 100% 0, 50% 100%);
+  z-index: 11;
+}
 
-    .letter p {
-      font-size: 16px;
-      margin-bottom: 12px;
-      color: #555;
-    }
+.lock {
+  position: absolute;
+  top: 45%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 50px;
+  height: 50px;
+  background: #ff5e8d;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 22px;
+  box-shadow: 0 4px 10px rgba(255,94,141,0.4);
+  cursor: pointer;
+  z-index: 9999;
+  user-select: none;
+}
 
-    /* 打开状态 */
-    .envelope.opened .envelope-flap {
-      transform: rotateX(180deg);
-    }
-    .envelope.opened .lock {
-      opacity: 0;
-      pointer-events: none;
-    }
-    .envelope.opened ~ .letter {
-      transform: translateY(0);
-      opacity: 1;
-    }
+/* 祝福语 */
+.message-box {
+  position: absolute;
+  left: 50%;
+  transform: translate(-50%, 0);
+  background: #fff0f6;
+  color: #ff5e8d;
+  padding: 12px 20px;
+  border-radius: 20px;
+  font-size: 16px;
+  white-space: nowrap;
+  box-shadow: 0 6px 16px rgba(255,154,182,0.3);
+  opacity: 0;
+  z-index: 99999;
+  transition: all 0.6s cubic-bezier(0.19,1,0.22,1);
+}
 
-    /* 爱心飘落 */
-    .hearts {
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      pointer-events: none;
-      z-index: 5;
-    }
-    .heart {
-      position: absolute;
-      color: #ff8fab;
-      font-size: 18px;
-      animation: fall 4s linear infinite;
-    }
-    @keyframes fall {
-      0% { transform: translateY(-10vh) rotate(0deg); opacity: 0.8; }
-      100% { transform: translateY(110vh) rotate(360deg); opacity: 0; }
-    }
+.hearts {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 5;
+}
+.heart {
+  position: absolute;
+  font-size: 18px;
+  animation: fall 4s linear infinite;
+}
+@keyframes fall {
+  0% { transform: translateY(-10vh); opacity: 0.8; }
+  100% { transform: translateY(110vh) rotate(360deg); opacity: 0; }
+}
 
-    /* 烟花效果 */
-    .fireworks {
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      pointer-events: none;
-      z-index: 20;
-      display: none;
-    }
-    .firework {
-      position: absolute;
-      width: 8px;
-      height: 8px;
-      background: #ffd700;
-      border-radius: 50%;
-      animation: firework 1.2s ease-out forwards;
-    }
-    @keyframes firework {
-      0% { transform: scale(0); opacity: 1; }
-      50% { transform: scale(1.5); opacity: 1; }
-      100% { transform: scale(0); opacity: 0; }
-    }
-  </style>
+.fireworks {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 20;
+  display: none;
+}
+.firework {
+  position: absolute;
+  width: 8px;
+  height: 8px;
+  background: #ffd700;
+  border-radius: 50%;
+  animation: firework 1.2s ease-out forwards;
+}
+@keyframes firework {
+  0% { transform: scale(0); opacity: 1; }
+  50% { transform: scale(1.5); opacity: 1; }
+  100% { transform: scale(0); opacity: 0; }
+}
+
+/* 蛋糕初始化显示 */
+.text-container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+  z-index: 30;
+  opacity: 1;
+  display: flex;
+  gap: 25px;
+  transition: opacity 0.8s ease;
+}
+
+.text3d {
+  font-size: 52px;
+  font-weight: bold;
+  color: #ff69b4;
+  text-shadow: 0 0 10px #ff69b4, 0 0 20px #ffd700, 0 0 30px white;
+  opacity: 1;
+}
+
+.cake-3d {
+  position: relative;
+  width: 240px;
+  height: 160px;
+  pointer-events: auto;
+  opacity: 1;
+}
+.cake-body {
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 200px;
+  height: 65px;
+  background: #ffb3c1;
+  border-radius: 12px;
+}
+.cake-top {
+  position: absolute;
+  bottom: 55px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 160px;
+  height: 42px;
+  background: #ff8fab;
+  border-radius: 10px;
+}
+.cream-line {
+  position: absolute;
+  width: 100%;
+  height: 8px;
+  background: #fff;
+  top: 15px;
+}
+.strawberry {
+  position: absolute;
+  width: 16px;
+  height: 16px;
+  background: #ff477e;
+  clip-path: polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%);
+}
+.blueberry {
+  position: absolute;
+  width: 10px;
+  height: 10px;
+  background: #6a67ce;
+  border-radius: 50%;
+}
+.choco {
+  position: absolute;
+  width: 12px;
+  height: 12px;
+  background: #7b4b3a;
+  border-radius: 3px;
+}
+
+/* 修复：蜡烛完美均匀分布 */
+.candle {
+  position: absolute;
+  bottom: 98px;
+  width: 5px;
+  height: 28px;
+  border-radius: 2px;
+}
+.flame {
+  position: absolute;
+  top: -12px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 9px;
+  height: 14px;
+  background: #ffd700;
+  border-radius: 50% 50% 30% 30%;
+  box-shadow: 0 0 8px #ff9100, 0 0 14px #ff4500;
+  animation: flicker 0.7s infinite alternate;
+  cursor: pointer;
+}
+@keyframes flicker {
+  from { opacity:1; } to { opacity:0.8; }
+}
+.flame.off { opacity:0!important; animation:none; }
+
+.finger-tip {
+  position: fixed;
+  font-size: 24px;
+  color: #ff5e8d;
+  z-index: 9999;
+  opacity: 1;
+  transition: opacity 0.4s;
+  animation: fingerMove 1.2s infinite alternate;
+  white-space: nowrap;
+  pointer-events: auto;
+  left: 58%;
+  top: 44%;
+}
+@keyframes fingerMove {
+  from{transform:translateX(0);}to{transform:translateX(-10px);}
+}
+
+.wave {
+  position: absolute;
+  width:60px; height:60px;
+  border:2px solid rgba(255,94,141,0.4);
+  border-radius:50%;
+  z-index:80;
+  opacity:0;
+  animation:waveAni 0.8s ease-out forwards;
+}
+@keyframes waveAni {
+  from{transform:scale(0.2);opacity:1;}to{transform:scale(1.6);opacity:0;}
+}
+</style>
 </head>
 <body>
 
-<!-- 四周浮动小装饰 -->
-<div class="float-item" style="top:10%; left:10%; animation-delay:0s">🐻</div>
-<div class="float-item" style="top:15%; left:80%; animation-delay:1s">🐰</div>
-<div class="float-item" style="top:70%; left:12%; animation-delay:2s">🎂</div>
-<div class="float-item" style="top:80%; left:75%; animation-delay:0.5s">🎈</div>
-<div class="float-item" style="top:40%; left:5%; animation-delay:1.5s">⭐</div>
-<div class="float-item" style="top:30%; left:85%; animation-delay:2.5s">🍭</div>
+<div class="float-item" style="top:10%; left:10%">🐻</div>
+<div class="float-item" style="top:15%; left:80%">🐰</div>
+<div class="float-item" style="top:70%; left:12%">🎂</div>
+<div class="float-item" style="top:80%; left:75%">🎈</div>
+<div class="float-item" style="top:40%; left:5%">⭐</div>
+<div class="float-item" style="top:30%; left:85%">🍭</div>
 
-<!-- 信封 -->
-<div class="envelope-wrapper">
-  <div class="envelope" id="envelope">
+<!-- 彩虹马 -->
+<div class="rainbow-pony" id="pony">🦄</div>
+
+<div class="envelope-wrapper" id="envelopeWrapper">
+  <div class="envelope">
     <div class="envelope-flap"></div>
     <div class="lock" id="lock">🔒</div>
   </div>
+</div>
 
-  <!-- 信纸内容 -->
-  <div class="letter">
-    <h2>亲爱的，生日快乐！🎂</h2>
-    <p>你出生的那天，是世界赠予我最珍贵的礼物。</p>
-    <p>新的一岁，愿你被温柔以待，眼里有光，心中有爱。</p>
-    <p>愿你平安喜乐，万事胜意，所有美好都如约而至。</p>
-    <p>岁岁常欢愉，年年皆胜意～</p>
-    <p style="margin-top:24px; font-style:italic; color:#ff5e8d">❤️ 永远爱你 / 想你 / 陪你</p>
+<div class="hearts" id="hearts"></div>
+<div class="fireworks" id="fireworks"></div>
+<div class="finger-tip" id="fingerTip">👈 许个愿，吹蜡烛咯！</div>
+
+<div class="text-container" id="textContainer">
+  <div class="text3d" id="text3d">生日快乐</div>
+  <div class="cake-3d" id="cake3d">
+    <div class="cake-body"></div>
+    <div class="cake-top">
+      <div class="cream-line"></div>
+    </div>
   </div>
 </div>
 
-<!-- 爱心飘落容器 -->
-<div class="hearts" id="hearts"></div>
-
-<!-- 烟花容器 -->
-<div class="fireworks" id="fireworks"></div>
-
 <script>
-  // 1. 开锁动画
-  const lock = document.getElementById('lock');
-  const envelope = document.getElementById('envelope');
-  const fireworks = document.getElementById('fireworks');
+const lock = document.getElementById('lock');
+const textContainer = document.getElementById('textContainer');
+const fingerTip = document.getElementById('fingerTip');
+const envelopeWrapper = document.getElementById('envelopeWrapper');
+const pony = document.getElementById('pony');
 
-  lock.addEventListener('click', () => {
-    // 打开信封
-    envelope.classList.add('opened');
-    lock.innerHTML = '🔓';
+let candleBlown = false;
+let lockOpened = false;
 
-    // 显示烟花
-    fireworks.style.display = 'block';
-    createFireworks();
-    setTimeout(() => { fireworks.style.display = 'none'; }, 2000);
+const messages = [
+"一岁一礼，一寸欢喜","且喜且乐，且以永日","愿卿生辰安暖，岁岁皆平安",
+"风月入怀，喜乐如常","岁岁常欢愉，万事皆胜意","良辰吉日，生辰喜乐",
+"此生尽兴，赤诚善良","时光温柔，岁月静好"
+];
 
-    // 播放音效（可选）
-    const audio = new Audio('https://cdn.pixabay.com/download/audio/2022/03/15/audio_84901e3b6e.mp3');
-    audio.volume = 0.4;
-    audio.play().catch(() => {});
+// ✅ 修复：蜡烛完美均匀分布，不回头、不重叠
+(function createCandles(){
+  const candleCount = 18;
+  const startPos = 45; // 左边第一个位置
+  const endPos = 185;  // 右边最后一个位置
+  const positions = [];
+  
+  // 计算均匀分布的位置
+  for(let i = 0; i < candleCount; i++) {
+    const position = startPos + (endPos - startPos) * (i / (candleCount - 1));
+    positions.push(Math.round(position));
+  }
+  
+  const colors = ['#ff8fb4','#fff176','#81d4fa','#f8bbd0','#ce93d8','#ffffff'];
+  positions.forEach((l,i)=>{
+    const c = document.createElement('div');
+    c.className='candle';
+    c.style.left=l+'px';
+    c.style.background=colors[i%colors.length];
+    const f=document.createElement('div');
+    f.className='flame';
+    c.appendChild(f);
+    cake3d.appendChild(c);
   });
+})();
 
-  // 2. 生成随机爱心飘落
-  function createHearts() {
-    const hearts = document.getElementById('hearts');
-    const count = 15;
-    for (let i=0; i<count; i++) {
-      const heart = document.createElement('div');
-      heart.className = 'heart';
-      heart.innerHTML = '❤️';
-      heart.style.left = Math.random() * 100 + '%';
-      heart.style.animationDelay = Math.random() * 4 + 's';
-      heart.style.animationDuration = (3 + Math.random() * 3) + 's';
-      hearts.appendChild(heart);
-    }
-  }
-  createHearts();
+// 水果装饰
+(function addFruits(){
+  const top = document.querySelector('.cake-top');
+  const fruits = [
+    {c:'strawberry',l:20},{c:'blueberry',l:45},{c:'choco',l:65},
+    {c:'strawberry',l:85},{c:'blueberry',l:105},{c:'choco',l:125},{c:'strawberry',l:140}
+  ];
+  fruits.forEach(it=>{
+    const e=document.createElement('div');
+    e.className=it.c;
+    e.style.left=it.l+'px';
+    e.style.top='22px';
+    top.appendChild(e);
+  });
+})();
 
-  // 3. 生成烟花
-  function createFireworks() {
-    const fw = document.getElementById('fireworks');
-    fw.innerHTML = '';
-    const total = 30;
-    for (let i=0; i<total; i++) {
-      const f = document.createElement('div');
-      f.className = 'firework';
-      f.style.left = Math.random() * 100 + '%';
-      f.style.top = Math.random() * 60 + '%';
-      f.style.background = ['#ffd700','#ff69b4','#fff','#ff1493','#ffff00'][Math.floor(Math.random()*5)];
-      f.style.animationDelay = Math.random() * 0.8 + 's';
-      fw.appendChild(f);
-    }
+// ====================== 核心功能 ======================
+// 1. 吹灭蜡烛 → 隐藏蛋糕 → 播放彩虹马动画 → 显示信封
+function blow(){
+  if(candleBlown) return;
+  candleBlown = true;
+
+  document.querySelectorAll('.flame').forEach(f=>f.classList.add('off'));
+  fingerTip.style.opacity = 0;
+
+  // 波纹效果
+  const w=document.createElement('div');
+  w.className='wave';
+  w.style.left='50%';w.style.top='44%';
+  w.style.transform='translate(-50%,-50%)';
+  document.body.appendChild(w);
+  setTimeout(()=>w.remove(),900);
+
+  // 隐藏蛋糕
+  setTimeout(()=>{
+    textContainer.style.opacity = 0;
+    setTimeout(()=>{
+      textContainer.style.display = 'none';
+      // 播放彩虹马动画
+      pony.style.display = 'flex';
+      
+      // 动画结束后显示信封
+      setTimeout(()=>{
+        envelopeWrapper.style.display = 'block';
+      }, 1800);
+      
+    }, 600);
+  }, 800);
+}
+
+// 2. 点击锁 → 显示祝福语
+lock.onclick = function(){
+  if(lockOpened) return;
+  lockOpened = true;
+  lock.textContent = '🔓';
+
+  let delay = 600;
+  messages.forEach((msg,i)=>{
+    setTimeout(()=>{
+      const b = document.createElement('div');
+      b.className='message-box';
+      b.textContent=msg;
+      b.style.top=(14+i*7)+'%';
+      b.style.opacity=1;
+      document.body.appendChild(b);
+    },delay);
+    delay += 350;
+  });
+};
+
+// 绑定点击
+document.addEventListener('DOMContentLoaded', () => {
+  document.querySelectorAll('.flame').forEach(f=>f.onclick=blow);
+  fingerTip.onclick=blow;
+  pony.style.display = 'none'; // 初始隐藏小马
+});
+
+// 爱心飘落
+(function hearts(){
+  const h = document.getElementById('hearts');
+  for(let i=0;i<15;i++){
+    const e=document.createElement('div');
+    e.className='heart';
+    e.textContent='❤️';
+    e.style.left=Math.random()*100+'%';
+    e.style.animationDelay=Math.random()*4+'s';
+    h.appendChild(e);
   }
+})();
 </script>
-
 </body>
 </html>
